@@ -1,0 +1,8 @@
+#mensagens {
+    border: 1px solid #DDDDDD;
+    clear: right;
+    height: 300px;
+    overflow: auto;
+    position: relative;
+    width: 520px;
+}

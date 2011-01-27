@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html
+     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>SISVOALMO</title>
+		<link type="text/css" href="/media/css/sunny/jquery-ui-1.8.9.custom.css" rel="stylesheet" />	
+		<link type="text/css" href="/media/sisvoalmo.css" rel="stylesheet" />	
+		<script type="text/javascript" src="/media/js/jquery-1.4.4.min.js"></script>
+		<script type="text/javascript" src="/media/js/jquery-ui-1.8.9.custom.min.js"></script>
+		<script type="text/javascript"  >
+		$(function(){
+				atualizaVotacao(true);
+			}
+		)
+		
+		function atualizaVotacao(primeiraVez){
+				$.getJSON('ajax/votacao', function(data) {
+					$.each(data, function(i, voto) { 
+						if(voto.fields.usuario[0] == {{ usuariologado.pk }}){
+							if(primeiraVez)
+								$('input#radio_'+voto.fields.usuario[0]+"_"+voto.fields.restaurante[0]+":radio").attr("checked", "checked"); 
+						} else {
+							if($('td#cell'+voto.fields.usuario[0]+"_"+voto.fields.restaurante[0]).html() != "X" ){
+								$('td.cellVotacao'+voto.fields.usuario[0]).html("");
+								$('td#cell'+voto.fields.usuario[0]+"_"+voto.fields.restaurante[0]).html("X");
+							}
+						}
+					});	
+					setTimeout('atualizaVotacao()', 5000);
+				});
+		}
+		
+		function votar(){
+			var restaurantepk = $('input[name="restaurantes"]:checked', '#votacao').val();
+			$.post("ajax/votar", { "restaurantepk": restaurantepk });
+		}
+		</script>
+	</head>
+	<body>
+	<h1>SISVOALMO v0.1</h1>
+	<h2>Sistema de Vota&#231;&#227;o do Almo&#231;o</h2>
+	<form id="votacao">
+		<table border="1">
+			<thead>
+				<tr>
+					<th></th><!--restaurante-->
+		{% for usuario in usuarios %}
+					<th>{{usuario.username}}</th>
+		{% endfor %}
+				</tr>
+			</thead>
+			<tbody>
+		{% for restaurante in restaurantes %}
+			<tr>
+				<td>{{restaurante.nome}}</td>
+			{% for usuario in usuarios %}
+				<td id="cell{{usuario.pk}}_{{restaurante.pk}}" class="cellVotacao{{usuario.pk}}"  >
+				{% if usuariologado.pk  == usuario.pk %}
+					<input id="radio_{{usuario.pk}}_{{restaurante.pk}}" type="radio" name="restaurantes" value="{{restaurante.pk}}" />
+				{% endif %}
+				</td>
+			{% endfor %}
+			</tr>
+		{% endfor %}
+			</tbody>
+		</table>
+		<input type="button" value="VOTAR" onclick="votar()" />
+		
+		<div id="mensagens">
+			<div class="msg"><span class="msgUsr" >Usuario:</span><span class="msgUsr" >teste</span></div>
+			<div class="msg"><span class="msgUsr" >Usuario:</span><span class="msgUsr" >teste teste teste teste teste teste teste teste teste teste teste teste teste teste teste teste teste teste teste teste teste teste teste teste teste teste teste teste teste teste teste teste</span></div>
+			<div class="msg"><span class="msgUsr" >Usuario:</span><span class="msgUsr" >teste</span></div>
+		</div>
+		<input type="text" id="mensagem" /><input type="button" value="ENVIAR" onclick="votar()" />
+	</form>
+	</body>
+</html>
